@@ -64,4 +64,45 @@ def proceso(env, Creart, name, RAM, memoria, ins, ins_x_ut):
 
     # Se agraga al tiempo Final = (tiempo actual - tiempo  llegada)
     lista.append (env.now - T_Llegar)
-    TiempoFinal += (env.now - T_Llegar)
+    TiempoFinal += (env.now - T_Llegar)  
+
+#***********************************************************************************************************+
+# NUMERO es cambiado dependiendo las condiciones.
+memoria_RAM=100 # NUMERO de unidades de memoria RAM
+ins_x_ut = 3.0 #3 instrucciones por unidad de tiempo
+TiempoFinal = 0.0 #TIEMPO dinal de los procesos
+n_procesos = 200 # NUMERO de procesos a ejecutar
+intervalo = 1 #cada NUMERO
+
+env = simpy.Environment()  #crear ambiente de simulacion
+RAM = simpy.Container(env, init=memoria_RAM, capacity=memoria_RAM) 
+CPU = simpy.Resource (env, capacity=1) #cola para acceso a CPU
+waiting = simpy.Resource (env, capacity=1) #cola para acceso a operaciones I/O
+
+# Numeros al azar con semilla para random, genera la misma secuencia para comparaciones. 
+random.seed(1234)
+
+
+
+#********************************************PROCESOS**********************************************************
+for i in range(n_procesos):
+    Creart = random.expovariate(1.0 / intervalo)
+    ins = random.randint(1,10) #Cantidad de instrucciones
+    memoria = random.randint(1,10) #Cantidad de memoria a solicitar
+    env.process(proceso(env, Creart, 'Proceso %d' % i, RAM, memoria, ins, ins_x_ut))
+    
+
+# correr la simulacion
+env.run()
+#Hacemos el calculo del promedio y la desviacion estandar para imprimirlos
+promedio = TiempoFinal/n_procesos
+sumatoria = 0
+for i in range (n_procesos):
+    sumatoria += (lista[i]-promedio)**2
+sumatoria = sumatoria/n_procesos
+print ("***********************************************************")
+print ("*El PROMEDIO DE TIEMPO DEL PROCESO ES:  ", promedio , "*")
+print ("***********************************************************")
+print ("***********************************************************")
+print ("*LA DESVIACION ESTANDAR  ES:  ", math.sqrt(sumatoria), "*")
+print ("***********************************************************")
